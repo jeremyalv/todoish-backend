@@ -1,3 +1,3 @@
-django superadmin
-uname: jerealva
-pw: jerealva
+# Todoish Backend Service
+
+Built using Django REST Framework
