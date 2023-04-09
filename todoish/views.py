@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -15,8 +16,9 @@ def endpoints(request):
 
     return Response(data)
 
-@csrf_exempt
-def task_list(request):
+# @csrf_exempt
+@api_view(['GET', 'POST'])
+def task_list(request, format=None):
     """
     List all Tasks
     """
@@ -25,19 +27,19 @@ def task_list(request):
         tasks = Task.objects.all()
         serializer = TaskSerializer(tasks, many=True)
 
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = TaskSerializer(data=data)
-
+        serializer = TaskSerializer(data=request.data)
+        
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@csrf_exempt
-def task_detail(request, pk):
+# @csrf_exempt
+@api_view(['GET', 'POST', 'DELETE'])
+def task_detail(request, pk, format=None):
     try:
         task = Task.objects.get(pk=pk)
     except Task.DoesNotExist:
@@ -45,21 +47,20 @@ def task_detail(request, pk):
 
     if request.method == 'GET':
         serializer = TaskSerializer(task)
-        return JsonResponse(serializer.data, status=200)
+        return Response(serializer.data)
 
     elif request.method == 'PUT':        
         # Parse request into JSON
-        data = JSONParser().parse(request)
-        serializer = TaskSerializer(task, data=data)
+        serializer = TaskSerializer(task, data=request.data)
 
         # Update data
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     
     elif request.method == 'DELETE':
         task.delete()
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     

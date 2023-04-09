@@ -17,9 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework.urlpatterns import format_suffix_patterns
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('todoish.urls')),
     path('auth/', include('authentication.urls')),
 ]
+
+# Format url pattern so that we can receive diff content types
+urlpatterns = format_suffix_patterns(urlpatterns)
