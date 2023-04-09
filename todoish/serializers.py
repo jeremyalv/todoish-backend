@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from authentication.models import Profile
+from authentication.serializers import ProfileSerializer
 from .models import Task
 
 # class TaskSerializer(serializers.Serializer):
@@ -34,20 +33,9 @@ from .models import Task
 #         instance.save()
 #         return instance
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User()
-        fields = '__all__'
-
-class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
 class TaskSerializer(serializers.ModelSerializer):
     author = ProfileSerializer(required=True)
+
     class Meta:
         model = Task
         fields = '__all__'
