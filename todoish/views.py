@@ -1,12 +1,16 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from authentication.models import Profile
 from todoish.models import Task
 from todoish.serializers import TaskSerializer
 
@@ -16,51 +20,84 @@ def endpoints(request):
 
     return Response(data)
 
-# @csrf_exempt
-@api_view(['GET', 'POST'])
-def task_list(request, format=None):
+@method_decorator(csrf_exempt, name='dispatch')
+class TaskList(APIView):
     """
-    List all Tasks
+    List all tasks, or create a new task
     """
 
-    if request.method == 'GET':
+    def get(self, request, format=None):
         tasks = Task.objects.all()
         serializer = TaskSerializer(tasks, many=True)
 
         return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        data = request.data
 
-    elif request.method == 'POST':
-        serializer = TaskSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Directly create Task object using Task model
+        task = Task.objects.create(
+            title=data['title'],
+            description=data['description'],
+            is_finished=data['is_finished'],
+            category=data['category'],
 
-# @csrf_exempt
-@api_view(['GET', 'POST', 'DELETE'])
-def task_detail(request, pk, format=None):
-    try:
-        task = Task.objects.get(pk=pk)
-    except Task.DoesNotExist:
-        return HttpResponse(f"Error: Task with id {pk} does not exist", status=404)
+            # To serialize nested objects, in the view we must retrieve the nested object
+            author=self.get_profile(data['author_id']),
+        )
 
-    if request.method == 'GET':
+        serializer = TaskSerializer(task, many=False)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get_profile(self, pk):
+        user = User.objects.get(pk=pk)
+        profile = Profile.objects.get(user=user)
+
+        return profile
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TaskDetail(APIView):
+    """
+    Retrieve, update, or delete a Task instance
+    """
+
+    def get_object(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        task = self.get_object(pk)
         serializer = TaskSerializer(task)
         return Response(serializer.data)
-
-    elif request.method == 'PUT':        
-        # Parse request into JSON
-        serializer = TaskSerializer(task, data=request.data)
-
-        # Update data
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
     
-    elif request.method == 'DELETE':
+    def put(self, request, pk, format=None):
+        data = request.data
+
+        task = self.get_object(pk)
+
+        task.title = data['title']
+        task.description = data['description']
+        task.is_finished = data['is_finished']
+        task.category = data['category']
+        # To serialize nested objects, in the view we must retrieve the nested object
+        task.author = self.get_profile(data['author_id'])
+
+        # Save updated changes
+        task.save()
+        
+        serializer = TaskSerializer(task, many=False)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk, format=None):
+        task = self.get_object(pk)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    def get_profile(self, pk):
+        user = User.objects.get(pk=pk)
+        profile = Profile.objects.get(user=user)
+
+        return profile
