@@ -7,12 +7,13 @@ class Task(models.Model):
     is_finished = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='tasks', null=False)
     category = models.CharField(max_length=50)
+
+    class Meta: 
+        ordering = ['created_at']
 
     def __str__(self) -> str:
         return self.title
     
-    class Meta: 
-        ordering = ['created_at']
-
+  

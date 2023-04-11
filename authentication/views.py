@@ -1,21 +1,20 @@
-from django.shortcuts import render
-from django.urls import path
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
-@api_view(['POST'])
-def register(request):
-    pass
+from authentication.models import Profile
+from authentication.serializers import ProfileSerializer
 
+class Endpoints(APIView):
+    def get(self, request, format=None):
+        data = ['/users', 'users/:user_id']
+        return Response(data)
 
-@api_view(['GET'])
-def login(request):
-    pass
+class ProfileList(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
 
-
-@api_view(['POST'])
-def logout(request):
-    pass
-
-
-
+class ProfileDetail(generics.RetrieveAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer

@@ -3,7 +3,8 @@ from authentication.serializers import ProfileSerializer
 from .models import Task
 
 class TaskSerializer(serializers.ModelSerializer):
-    author = ProfileSerializer(required=True)
+    # author = ProfileSerializer(required=True)
+    author = serializers.ReadOnlyField(source='author.user.username')
 
     class Meta:
         model = Task
