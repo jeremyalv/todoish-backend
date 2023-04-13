@@ -7,7 +7,6 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('todoish.urls')),
-    path('auth/', include('authentication.urls')),
 ]
 
 # Format url pattern so that we can receive diff content types
