@@ -16,5 +16,5 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Profile
-        # TODO add 'url' field still bugging
+        # TODO when addding 'url' field still bugging
         fields = ['user', 'tasks']

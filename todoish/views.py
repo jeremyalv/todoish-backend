@@ -27,8 +27,9 @@ class Endpoints(APIView):
         data = ['/tasks', 'tasks/:task_id']
         return Response(data)
 
+# TODO This view is too abstracted, to be refactored into regular APIView-Inherited view
 class TaskList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -42,7 +43,7 @@ class TaskList(generics.ListCreateAPIView):
         return profile
 
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
