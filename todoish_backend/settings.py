@@ -25,8 +25,45 @@ SECRET_KEY = 'django-insecure-1hqujcbol5+$9=53mb_4yx!r48b+u5o!q!@)_wag+5hy$l@gi1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*'
+]
+CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://localhost:8000',
+#     'http://localhost:8000/*'
+# ]
+
+# ALLOWED_HOSTS = [
+#     'localhost',
+# ]
+
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:8000',
+# ]
 
 # Application definition
 
@@ -47,6 +84,7 @@ INSTALLED_APPS = [
     'todoish',
 
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +95,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'todoish_backend.urls'

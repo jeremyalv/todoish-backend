@@ -12,6 +12,9 @@ from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 
 from authentication.models import Profile
+# TODO use permission when implementing full-fledged -> https://supertype.ai/notes/django-rest-custom-permissions/
+from authentication.permissions import IsAuthorOrReadOnly 
+
 from todoish.models import Task
 from todoish.serializers import TaskSerializer
 
@@ -27,9 +30,8 @@ class Endpoints(APIView):
         data = ['/tasks', 'tasks/:task_id']
         return Response(data)
 
-# TODO This view is too abstracted, to be refactored into regular APIView-Inherited view
 class TaskList(generics.ListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthorOrReadOnly]
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -43,7 +45,7 @@ class TaskList(generics.ListCreateAPIView):
         return profile
 
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthorOrReadOnly]
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
