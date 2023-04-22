@@ -4,6 +4,10 @@ from .models import Task
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     author = serializers.ReadOnlyField(source='author.user.username')
+    
+    description = serializers.CharField(max_length=2000, required=False, allow_blank=True)
+    category = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    due_date = serializers.DateTimeField(required=False, allow_null=True)
 
     class Meta:
         model = Task
