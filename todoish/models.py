@@ -9,7 +9,7 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='tasks', null=False)
-    category = models.CharField(max_length=50)
+    category = models.CharField(max_length=50, null=True)
 
     class Meta: 
         ordering = ['created_at']
